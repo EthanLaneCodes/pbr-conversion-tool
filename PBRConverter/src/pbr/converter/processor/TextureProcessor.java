@@ -93,15 +93,21 @@ public class TextureProcessor {
 
 				// Loop through R, G, and B, doing math for diff and spec
 				for (int i = 0; i < 3; i++) {
+
 					// Core conversion calculations
+
 					// Diffuse Equation
-					diffuseValues[i] = ((1 - metalnessValue) + metalnessConstant) * baseColorValues[i];
+					// The min function ensures the base color is not multiplied by a value greater
+					// than 1 (effectively clamps the brightness of non-metals)
+					diffuseValues[i] = (Math.min(1.0, (1 - metalnessValue) + metalnessConstant)) * baseColorValues[i];
+
 					// Specular Equation
 					specularValues[i] = (baseColorValues[i] * metalnessValue)
 							+ (dielectricConstant * (1 - metalnessValue));
 				}
 
 				// Declare and initialize glossiness value with conversion applied
+				// TODO - Fix glossiness looking too dark
 				double glossinessValue = 1 - roughnessValue;
 
 				// Sets pixel of diffuse texture from the resulting calculations and
