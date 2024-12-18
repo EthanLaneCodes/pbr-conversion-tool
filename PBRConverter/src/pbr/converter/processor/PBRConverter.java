@@ -63,7 +63,7 @@ public class PBRConverter {
 	}
 
 	/**
-	 * Single arg constructor for PBRConverter that constructs constants to default
+	 * Single-arg constructor for PBRConverter that constructs constants to default
 	 * values.
 	 * 
 	 * @param outputFolderPath File path for output folder
@@ -77,7 +77,7 @@ public class PBRConverter {
 	/**
 	 * Initiates conversion of textures using a {@link TextureProcessor} object and
 	 * calling its process method. Handles errors relating to directories and
-	 * propagates exceptions to {@link TextureProcessor}
+	 * propagates exceptions to {@link TextureProcessor}.
 	 * 
 	 * @param baseColor File for base color being converted
 	 * @param metalness File for metalness being converted

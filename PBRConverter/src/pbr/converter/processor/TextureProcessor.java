@@ -35,7 +35,7 @@ public class TextureProcessor {
 	private double dielectricConstant;
 
 	/**
-	 * Two arg constructor taking in the metalness and dielectric constants
+	 * Two arg constructor taking in the metalness and dielectric constants.
 	 * 
 	 * @param metalnessConstant  Metalness Constant
 	 * @param dielectricConstant Dielectric Constant
@@ -72,13 +72,14 @@ public class TextureProcessor {
 		int width = baseColor.getWidth();
 		int height = baseColor.getHeight();
 
+		// Declare new images for diff/spec/gloss with dimensions and type ARGB
 		BufferedImage diffuse = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		BufferedImage specular = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		BufferedImage glossiness = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				int baseColorRGB = baseColor.getRGB(x, y);
+		for (int y = 0; y < height; y++) { // Loops over vertical pixels
+			for (int x = 0; x < width; x++) { // Loops over horizontal pixels
+				int baseColorRGB = baseColor.getRGB(x, y); // Grab value of pixel from each input texture.
 				int metalnessRGB = metalness.getRGB(x, y);
 				int roughnessRGB = roughness.getRGB(x, y);
 
@@ -86,17 +87,25 @@ public class TextureProcessor {
 				double metalnessValue = extractValues(metalnessRGB)[0]; // Assume metalness is grayscale
 				double roughnessValue = extractValues(roughnessRGB)[0]; // Assume roughness is grayscale
 
+				// Declare new variables for the RGB value of diff and spec at the given pixel
 				double[] diffuseValues = new double[3];
 				double[] specularValues = new double[3];
 
+				// Loop through R, G, and B, doing math for diff and spec
 				for (int i = 0; i < 3; i++) {
+					// Core conversion calculations
+					// Diffuse Equation
 					diffuseValues[i] = ((1 - metalnessValue) + metalnessConstant) * baseColorValues[i];
+					// Specular Equation
 					specularValues[i] = (baseColorValues[i] * metalnessValue)
 							+ (dielectricConstant * (1 - metalnessValue));
 				}
 
+				// Declare and initialize glossiness value with conversion applied
 				double glossinessValue = 1 - roughnessValue;
 
+				// Sets pixel of diffuse texture from the resulting calculations and
+				// converts back into ARGB format
 				diffuse.setRGB(x, y, convertToRGB(diffuseValues));
 
 				if (embedGlossinessInAlpha) {
@@ -124,7 +133,7 @@ public class TextureProcessor {
 	 * same.
 	 * 
 	 * @param images Images to compare.
-	 * @return True if dimentions are equal. False otherwise.
+	 * @return True if dimensions are equal. False otherwise.
 	 */
 	private boolean areDimensionsEqual(BufferedImage... images) {
 		int width = images[0].getWidth();
@@ -142,13 +151,19 @@ public class TextureProcessor {
 	 * source image {@link ImageIO} and converting it into a more usable normalized
 	 * RGB value for calculations.
 	 * 
+	 * The integer input is separated into sets of 8 bits, where the first 8 bits of
+	 * the ARGB value is blue, second 8 are green, and next 8 bits are red. Value is
+	 * then divided by 255 to be normalized to a more convenient value between 0 and
+	 * 1.
+	 * 
 	 * @param rgb RGB value of the given pixel
-	 * @return An array of double values for red/green/blue
+	 * @return An array of double values for red/green/blue between 0 and 1
 	 */
 	private double[] extractValues(int rgb) {
-		double red = ((rgb >> 16) & 0xFF) / 255.0; // Extract red channel
-		double green = ((rgb >> 8) & 0xFF) / 255.0; // Extract green channel
-		double blue = (rgb & 0xFF) / 255.0; // Extract blue channel
+		// Divided by 255 to be normalized between a value of 0 and 1
+		double red = ((rgb >> 16) & 0xFF) / 255.0; // Extract red channel - Third set of 8 bits in ARGB value
+		double green = ((rgb >> 8) & 0xFF) / 255.0; // Extract green channel - Second 8 bits in ARGB value
+		double blue = (rgb & 0xFF) / 255.0; // Extract blue channel - First 8 bits in ARGB value
 		return new double[] { red, green, blue };
 	}
 
